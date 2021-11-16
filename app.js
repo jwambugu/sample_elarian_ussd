@@ -22,8 +22,6 @@ const plansMenuText = () => {
   return text;
 };
 
-console.log(plansMenuText());
-
 const SCREEN_HOME = "SCREEN_HOME";
 const SCREEN_CREATE_ACCOUNT = "SCREEN_CREATE_ACCOUNT";
 const SCREEN_CONTACT_US = "SCREEN_CONTACT_US";
@@ -56,6 +54,7 @@ const ussdSessionEventHandler = async (
   // screen = SCREEN_HOME;
 
   const customerData = await customer.getMetadata();
+  let { name, plan } = customerData;
 
   console.log(screen);
 
@@ -87,6 +86,10 @@ const ussdSessionEventHandler = async (
       break;
     }
     case SCREEN_VIEW_PLANS: {
+      if (text !== "") {
+        name = text;
+      }
+
       menu.text = plansMenuText();
       menu.isTerminal = false;
 
@@ -96,7 +99,11 @@ const ussdSessionEventHandler = async (
       break;
     }
     case SCREEN_PREVIEW_PLAN: {
-      menu.text = `You have selected plan. Press 1 to confirm subscription.`;
+      if (text !== "") {
+        plan = getPlan(parseInt(text));
+      }
+
+      menu.text = `You have selected ${plan.name}.\n Press 1 to confirm subscription.`;
       menu.isTerminal = false;
 
       callback(menu, {
@@ -105,7 +112,7 @@ const ussdSessionEventHandler = async (
       break;
     }
     case SCREEN_CONFIRM_PLAN: {
-      menu.text = `You have subscribed to plan.`;
+      menu.text = `You have subscribed to ${plan.name}.`;
       menu.isTerminal = true;
 
       callback(menu, {
@@ -131,13 +138,11 @@ const ussdSessionEventHandler = async (
       });
     }
   }
-  //
-  // await customer.updateMetadata({ plan: "" });
-  //
-  // let { name, plan } = customerData;
-};
 
-//         "Please select a plan \n1. Maxi - 25Mbps- KES 4000\n2. Midi - 10Mbps- KES 3000\n3. Mini - 5Mbps- KES 2000";
+  await customer.updateMetadata({ name, plan });
+
+  console.log(customerData);
+};
 
 const connectToElarian = () => {
   const client = new Elarian({
