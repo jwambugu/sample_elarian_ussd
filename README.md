@@ -5,7 +5,7 @@ subscribe to an ISP. We will also set payment reminders through sms reminding th
 
 The final application will look as follows
 
-![USSD APP](https://github.com/jwambugu/elarian_ussd_tutorial/blob/main/_assets/ussd.gif)
+<img src="https://github.com/jwambugu/elarian_ussd_tutorial/blob/main/_assets/ussd.gif" alt="USSD APP" height="200"/>
 
 ## What is Elarian?
 
