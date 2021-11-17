@@ -1,7 +1,12 @@
 require("dotenv").config();
 const { Elarian } = require("elarian");
 
-const { ELARIAN_ORG_ID, ELARIAN_APP_ID, ELARIAN_API_KEY } = process.env;
+const {
+  ELARIAN_ORG_ID,
+  ELARIAN_APP_ID,
+  ELARIAN_API_KEY,
+  ELARIAN_SMS_SHORTCODE,
+} = process.env;
 
 const plans = [
   { id: 1, name: "Maxi", package: "25Mbps", price: 4000 },
@@ -33,6 +38,24 @@ const SCREEN_CONFIRM_PLAN = "SCREEN_CONFIRM_PLAN";
 const SCREEN_UNSUBSCRIBE = "SCREEN_UNSUBSCRIBE";
 const SCREEN_CONFIRM_UNSUBSCRIPTION = "SCREEN_CONFIRM_UNSUBSCRIPTION";
 
+// sendSMSToCustomer
+const sendSMSToCustomer = async (customer, message) => {
+  const response = await customer.sendMessage(
+    {
+      number: ELARIAN_SMS_SHORTCODE,
+      channel: "sms",
+    },
+    {
+      body: {
+        text: message,
+      },
+    }
+  );
+
+  console.log(response);
+  return response;
+};
+
 const ussdSessionEventHandler = async (
   notification,
   customer,
@@ -52,8 +75,6 @@ const ussdSessionEventHandler = async (
   if (appData) {
     screen = appData.screen;
   }
-
-  // screen = SCREEN_HOME;
 
   const customerData = await customer.getMetadata();
   let { name, plan } = customerData;
@@ -91,6 +112,11 @@ const ussdSessionEventHandler = async (
     case SCREEN_VIEW_PLANS: {
       if (!name && text !== "") {
         name = text;
+
+        await sendSMSToCustomer(
+          customer,
+          `Welcome to connectify. Your account has been created.`
+        );
       }
 
       menu.text = plansMenuText();
@@ -117,6 +143,11 @@ const ussdSessionEventHandler = async (
     case SCREEN_CONFIRM_PLAN: {
       menu.text = `You have subscribed to ${plan.name}.`;
       menu.isTerminal = true;
+
+      await sendSMSToCustomer(
+        customer,
+        `You have successfully subscribed to ${plan.name}.`
+      );
 
       callback(menu, {
         screen: SCREEN_HOME,
@@ -156,8 +187,11 @@ const ussdSessionEventHandler = async (
       if (text !== "" && text === "1") {
         switch (text) {
           case "1": {
-            menu.text = `You have successfully unsubscribed from ${plan.name}.`;
+            let message = `You have successfully unsubscribed from ${plan.name}.`;
+            menu.text = message;
             menu.isTerminal = true;
+
+            await sendSMSToCustomer(customer, message);
 
             plan = null;
             screen = SCREEN_HOME;
