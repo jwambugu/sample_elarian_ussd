@@ -251,6 +251,7 @@ const ussdSessionEventHandler = async (
 };
 
 const receivedPaymentEventHandler = async (payment, customer) => {
+  // TODO only cancel reminder if payment is complete
   const { value } = payment;
   const { currencyCode, amount } = value;
 
@@ -286,17 +287,7 @@ const connectToElarian = () => {
         `elarian: connection error - ${error}. Attempting to reconnect..`
       );
     })
-    .on("connected", async () => {
-      console.log(`elarian: connected successfully`);
-
-      // const customer = new client.Customer({
-      //   number: "+254708666389",
-      //   provider: "cellular",
-      // });
-      //
-      // const state = await customer.getState();
-      // console.log(state);
-    })
+    .on("connected", () => console.log(`elarian: connected successfully`))
     .on("ussdSession", ussdSessionEventHandler)
     .on("receivedPayment", receivedPaymentEventHandler)
     .on("reminder", reminderEventHandler)

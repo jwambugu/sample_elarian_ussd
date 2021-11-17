@@ -1,25 +1,11 @@
-# Building USSD app with Elarian
+# Elarian USSD
 
-In this article, we will build a simple USSD application using [Elarian](https://elarian.com) that allows customers to
-subscribe to an ISP. We will also set payment reminders through sms reminding the customer to make the payment.
+This is a simple USSD application using [Elarian](https://elarian.com) that allows customers to subscribe to an ISP. It
+also sets payment reminders through sms that will be sent if the customer has not made the payment.
 
-This is the final application.
+This is the final product.
 
 <img src="https://github.com/jwambugu/elarian_ussd_tutorial/blob/main/_assets/ussd.gif" alt="USSD APP" height="400"/>
-
-## What is Elarian?
-
-According to the [documentation](https://developers.elarian.com/introduction-to-elarian/what-is-elarian),
-> Elarian is a Customer Engagement Framework that allows you to build reactive, scalable applications fast. At its core, Elarian is a customer data and automation platform. It helps you organize and work with your customer data, even as you perform actions such as sending messages or handling payments.
-
-In simple terms, Elarian provides an interface
-for [customer data management](https://developers.elarian.com/introduction-to-elarian/customer-data-management) through
-the following interactions:
-
-- you can issue engagement [commands](https://developers.elarian.com/reference/commands) such as sending messages, add
-  or remove reminders to a customer
-- query a customer state which provides messages sent, customer sessions and transactions data
-- react to customers' data changes through [events](https://developers.elarian.com/reference/events)
 
 ### Customer actions
 
@@ -27,7 +13,6 @@ the following interactions:
 - Can upgrade or downgrade their current plan
 - Can pay for the subscription
 - Can get reminders to pay for their subscription
-- Can request site visit
 
 ### Screens
 
@@ -40,3 +25,20 @@ the following interactions:
     - Upgrade plan
     - Unsubscribe
     - Contact us
+
+### Application activity
+
+- New customer receives SMS after creating an account
+- Customer receives SMS after upgrading or subscribing to a plan.
+- Customer receives SMS after unsubscribing from a plan.
+- A reminder is set when a customer subscribes. Current reminder is set to `one minute` after subscription with an
+  interval of `60 seconds`
+- The payment reminder is set if a customer makes a payment.
+
+### Screenshots
+
+### TODO
+
+- [ ] Keep track of customer payment balance after payment and only cancel the reminder if actual balance is paid
+- [ ]
+
