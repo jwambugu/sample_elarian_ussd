@@ -9,6 +9,7 @@ const plans = [
   { id: 3, name: "Mini", package: "5Mbps", price: 2000 },
 ];
 
+// getPlan returns the plan with the current id
 const getPlan = (id) => {
   return plans.find((plan) => plan.id === id);
 };
@@ -30,6 +31,7 @@ const SCREEN_VIEW_PLANS = "SCREEN_VIEW_PLANS";
 const SCREEN_PREVIEW_PLAN = "SCREEN_PREVIEW_PLAN";
 const SCREEN_CONFIRM_PLAN = "SCREEN_CONFIRM_PLAN";
 const SCREEN_UNSUBSCRIBE = "SCREEN_UNSUBSCRIBE";
+const SCREEN_CONFIRM_UNSUBSCRIPTION = "SCREEN_CONFIRM_UNSUBSCRIPTION";
 
 const ussdSessionEventHandler = async (
   notification,
@@ -56,12 +58,10 @@ const ussdSessionEventHandler = async (
   const customerData = await customer.getMetadata();
   let { name, plan } = customerData;
 
-  console.log(screen);
-
   if (screen === SCREEN_HOME && text !== "") {
     switch (text) {
       case "1": {
-        screen = SCREEN_CREATE_ACCOUNT;
+        screen = name ? SCREEN_MY_ACCOUNT : SCREEN_CREATE_ACCOUNT;
         break;
       }
       case "2": {
@@ -69,8 +69,11 @@ const ussdSessionEventHandler = async (
         break;
       }
       case "3": {
-        screen = SCREEN_CONTACT_US;
+        screen = name ? SCREEN_UNSUBSCRIBE : SCREEN_CONTACT_US;
         break;
+      }
+      case "4": {
+        screen = SCREEN_CONTACT_US;
       }
     }
   }
@@ -86,7 +89,7 @@ const ussdSessionEventHandler = async (
       break;
     }
     case SCREEN_VIEW_PLANS: {
-      if (text !== "") {
+      if (!name && text !== "") {
         name = text;
       }
 
@@ -129,8 +132,68 @@ const ussdSessionEventHandler = async (
       });
       break;
     }
+    case SCREEN_UNSUBSCRIBE: {
+      if (!plan) {
+        menu.text = `You currently don't have an active plan.`;
+        menu.isTerminal = true;
+
+        callback(menu, {
+          screen: SCREEN_HOME,
+        });
+
+        break;
+      }
+
+      menu.text = `You will be unsubscribed from ${plan.name}.\n Press 1 to confirm.`;
+      menu.isTerminal = false;
+
+      callback(menu, {
+        screen: SCREEN_CONFIRM_UNSUBSCRIPTION,
+      });
+      break;
+    }
+    case SCREEN_CONFIRM_UNSUBSCRIPTION: {
+      if (text !== "" && text === "1") {
+        switch (text) {
+          case "1": {
+            menu.text = `You have successfully unsubscribed from ${plan.name}.`;
+            menu.isTerminal = true;
+
+            plan = null;
+            screen = SCREEN_HOME;
+            break;
+          }
+          default: {
+            menu.text = `Invalid option provided.\n Press 1 to confirm unsubscription from ${plan.name}.`;
+            menu.isTerminal = false;
+            screen = SCREEN_CONFIRM_UNSUBSCRIPTION;
+          }
+        }
+      }
+
+      callback(menu, {
+        screen,
+      });
+      break;
+    }
+    case SCREEN_MY_ACCOUNT: {
+      menu.text = !plan
+        ? `You don't have an active subscription.\n1. View plans`
+        : `Your current plan is ${plan.name}.\n Thank you for choosing us.`;
+
+      menu.isTerminal = plan;
+
+      screen = !plan ? SCREEN_VIEW_PLANS : SCREEN_HOME;
+
+      callback(menu, { screen });
+      break;
+    }
     default: {
-      menu.text = `Welcome to connectify.\n1. Create account\n2. View plans\n3. Contact us`;
+      const guestMenu = `Welcome to connectify.\n1. Create account\n2. View plans\n3. Contact us`;
+
+      menu.text = !name
+        ? guestMenu
+        : `Welcome back ${name}.\n1. My account\n2. Upgrade plan\n3. Unsubscribe \n4. Contact us`;
       menu.isTerminal = false;
 
       callback(menu, {
@@ -163,103 +226,3 @@ const connectToElarian = () => {
 };
 
 connectToElarian();
-
-//  if (screen === SCREEN_HOME && text !== "") {
-//     switch (text) {
-//       case "1":
-//         screen = name ? SCREEN_MY_ACCOUNT : SCREEN_CREATE_ACCOUNT;
-//         break;
-//       case "2":
-//         screen = SCREEN_VIEW_PLANS;
-//         break;
-//       case "3":
-//         screen = SCREEN_CONTACT_US;
-//         break;
-//     }
-//   }
-//
-//   console.log(screen === SCREEN_MY_ACCOUNT, screen);
-//   if (screen === SCREEN_MY_ACCOUNT && text !== "") {
-//     switch (text) {
-//       case "1":
-//         screen = SCREEN_VIEW_PLANS;
-//         break;
-//       case "2":
-//         screen = SCREEN_UNSUBSCRIBE;
-//         break;
-//     }
-//
-//     if (screen === SCREEN_VIEW_PLANS && text !== "") {
-//       switch (text) {
-//         case "1":
-//           screen = SCREEN_VIEW_PLANS;
-//           break;
-//         case "2":
-//           screen = SCREEN_UNSUBSCRIBE;
-//           break;
-//       }
-//     }
-//   }
-//
-//   switch (screen) {
-//     case SCREEN_CREATE_ACCOUNT:
-//       menu.text = "Please enter your name";
-//       menu.isTerminal = false;
-//
-//       callback(menu, {
-//         screen: SCREEN_VIEW_PLANS,
-//       });
-//       break;
-//     case SCREEN_VIEW_PLANS:
-//       menu.text =
-//         "Please select a plan \n1. Maxi - 25Mbps- KES 4000\n2. Midi - 10Mbps- KES 3000\n3. Mini - 5Mbps- KES 2000";
-//       menu.isTerminal = false;
-//
-//       if (!name) {
-//         name = text;
-//       }
-//
-//       callback(menu, { screen: SCREEN_CONFIRM_PLAN });
-//       break;
-//     case SCREEN_CONFIRM_PLAN:
-//       plan = getPlan(parseInt(text));
-//
-//       menu.text = `You have selected ${plan}. Press 1 to confirm subscription.`;
-//       menu.isTerminal = false;
-//
-//       callback(menu, {
-//         screen: SCREEN_MY_ACCOUNT,
-//       });
-//       break;
-//     case SCREEN_CONTACT_US:
-//       menu.text = `Please contact us on 07xxxxxxxx. We will be happy to help.`;
-//       menu.isTerminal = true;
-//       callback(menu, {
-//         screen: SCREEN_HOME,
-//       });
-//       break;
-//     case SCREEN_MY_ACCOUNT:
-//       menu.text = plan
-//         ? `Your current plan is ${plan.name}\n1. Upgrade plan\n2. Unsubscribe`
-//         : `You don't have an active plan.\n1. View Plans`;
-//
-//       menu.isTerminal = false;
-//       callback(menu, appData);
-//       break;
-//     case SCREEN_UNSUBSCRIBE:
-//       menu.text = `You have successfully unsubscribed from ${plan.name}`;
-//       menu.isTerminal = true;
-//       plan = null;
-//       break;
-//     default:
-//       menu.text = name
-//         ? `Welcome back ${name}.\n1. My account\n2. View plans\n3. Contact support`
-//         : `Welcome to connectify.\n1. Create account\n2. View plans\n3. Contact support`;
-//       menu.isTerminal = false;
-//       callback(menu, { screen });
-//       break;
-//   }
-//
-//   console.log(screen, text, { name, plan });
-//
-//   await customer.updateMetadata({ name, plan });
