@@ -3,9 +3,9 @@
 In this article, we will build a simple USSD application using [Elarian](https://elarian.com) that allows customers to
 subscribe to an ISP. We will also set payment reminders through sms reminding the customer to make the payment.
 
-The final application will look as follows
+This is the final application.
 
-<img src="https://github.com/jwambugu/elarian_ussd_tutorial/blob/main/_assets/ussd.gif" alt="USSD APP" height="200"/>
+<img src="https://github.com/jwambugu/elarian_ussd_tutorial/blob/main/_assets/ussd.gif" alt="USSD APP" height="400"/>
 
 ## What is Elarian?
 
