@@ -5,7 +5,7 @@ also sets payment reminders through sms that will be sent if the customer has no
 
 This is the final product.
 
-<img src="https://github.com/jwambugu/elarian_ussd_tutorial/blob/main/_assets/ussd.gif" alt="USSD APP" height="400"/>
+<img src="https://github.com/jwambugu/sample_elarian_ussd/blob/main/_assets/ussd.gif" alt="USSD APP" height="400"/>
 
 ### Customer actions
 
@@ -37,8 +37,12 @@ This is the final product.
 
 ### Screenshots
 
+<img src="https://github.com/jwambugu/sample_elarian_ussd/blob/main/_assets/new_customer_menu.png" alt="new customer menu" height="400"/>
+<img src="https://github.com/jwambugu/sample_elarian_ussd/blob/main/_assets/existing_customer_menu.png" alt="existing customer menu" height="400"/>
+<img src="https://github.com/jwambugu/sample_elarian_ussd/blob/main/_assets/welcome_sms.png" alt="welcome sms" height="400"/>
+<img src="https://github.com/jwambugu/sample_elarian_ussd/blob/main/_assets/customer_sms.png" alt="customer messages" height="400"/>
+
 ### TODO
 
 - [ ] Keep track of customer payment balance after payment and only cancel the reminder if actual balance is paid
-- [ ]
 
