@@ -7,6 +7,38 @@ This is the final product.
 
 <img src="https://github.com/jwambugu/sample_elarian_ussd/blob/main/_assets/ussd.gif" alt="USSD APP" height="400"/>
 
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone https://github.com/jwambugu/sample_elarian_ussd.git
+```
+
+Go to the project directory
+
+```bash
+  cd sample_elarian_ussd
+```
+
+Update `.env`
+
+```bash
+ cp .env.example .env
+```
+
+Install dependencies
+
+```bash
+  npm install
+```
+
+Start the server
+
+```bash
+  npm run start
+```
+
 ### Customer actions
 
 - Can create an account and select a subscription plan if they are new
