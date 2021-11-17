@@ -38,6 +38,8 @@ const SCREEN_CONFIRM_PLAN = "SCREEN_CONFIRM_PLAN";
 const SCREEN_UNSUBSCRIBE = "SCREEN_UNSUBSCRIBE";
 const SCREEN_CONFIRM_UNSUBSCRIPTION = "SCREEN_CONFIRM_UNSUBSCRIPTION";
 
+const REMINDER_PAYMENT_REMINDER = "REMINDER_PAYMENT_REMINDER";
+
 // sendSMSToCustomer
 const sendSMSToCustomer = async (customer, message) => {
   const response = await customer.sendMessage(
@@ -149,6 +151,13 @@ const ussdSessionEventHandler = async (
         `You have successfully subscribed to ${plan.name}.`
       );
 
+      await customer.addReminder({
+        key: REMINDER_PAYMENT_REMINDER,
+        remindAt: (Date.now() + 60000) / 1000,
+        payload: "",
+        interval: 60,
+      });
+
       callback(menu, {
         screen: SCREEN_HOME,
       });
@@ -250,8 +259,18 @@ const receivedPaymentEventHandler = async (payment, customer) => {
     `Payment of ${currencyCode} ${amount} has been successfully received.`
   );
 
-  const newMeta = await customer.getMetadata();
-  console.log(newMeta);
+  await customer.cancelReminder(REMINDER_PAYMENT_REMINDER);
+};
+
+const reminderEventHandler = async (reminder, customer) => {
+  console.log(reminder);
+
+  const { name, plan } = await customer.getMetadata();
+
+  await sendSMSToCustomer(
+    customer,
+    `Hello ${name}, please remember to make your payment of KES ${plan.price}`
+  );
 };
 
 const connectToElarian = () => {
@@ -267,11 +286,20 @@ const connectToElarian = () => {
         `elarian: connection error - ${error}. Attempting to reconnect..`
       );
     })
-    .on("connected", () => {
+    .on("connected", async () => {
       console.log(`elarian: connected successfully`);
+
+      // const customer = new client.Customer({
+      //   number: "+254708666389",
+      //   provider: "cellular",
+      // });
+      //
+      // const state = await customer.getState();
+      // console.log(state);
     })
     .on("ussdSession", ussdSessionEventHandler)
     .on("receivedPayment", receivedPaymentEventHandler)
+    .on("reminder", reminderEventHandler)
     .connect();
 };
 
