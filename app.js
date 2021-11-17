@@ -241,6 +241,19 @@ const ussdSessionEventHandler = async (
   console.log(customerData);
 };
 
+const receivedPaymentEventHandler = async (payment, customer) => {
+  const { value } = payment;
+  const { currencyCode, amount } = value;
+
+  await sendSMSToCustomer(
+    customer,
+    `Payment of ${currencyCode} ${amount} has been successfully received.`
+  );
+
+  const newMeta = await customer.getMetadata();
+  console.log(newMeta);
+};
+
 const connectToElarian = () => {
   const client = new Elarian({
     orgId: ELARIAN_ORG_ID,
@@ -254,8 +267,11 @@ const connectToElarian = () => {
         `elarian: connection error - ${error}. Attempting to reconnect..`
       );
     })
-    .on("connected", () => console.log(`elarian: connected successfully`))
+    .on("connected", () => {
+      console.log(`elarian: connected successfully`);
+    })
     .on("ussdSession", ussdSessionEventHandler)
+    .on("receivedPayment", receivedPaymentEventHandler)
     .connect();
 };
 
